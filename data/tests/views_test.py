@@ -1,9 +1,28 @@
 import pytest
 import requests
+from os import system
+import platform
+
+# to be run at the beginning of each class
+def startup():
+    system("python manage.py makemigrations")
+    system("python manage.py migrate --database=testing")
+    system("python manage.py runserver")
+
+# to be run at the end of each class
+def end():
+    try:
+        if(platform.system() == "Windows"):
+            system("del databases/testing.sqlite3")
+        else:
+            system("rm databases/testing.sqlite3")
+    except Exception as e:
+        print("Exception: " + e)
 
 # NOTE: make sure the server is running before running tests!
 # these tests assume that there is nothing in the database beforehand and you are running them in order
 class TestDepartmentViewSet:
+    startup()
     def testGetOnNothing(self):
         try:
             req = requests.get("http://127.0.0.1:8000/api/Departments/")
@@ -107,8 +126,12 @@ class TestDepartmentViewSet:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
             pytest.fail("Exception: " + str(e))
+    
+    end()
 
 class TestMajorViewSet():
+    startup()
+
     def testGetOnNothing(self):
         try:
             req = requests.get("http://127.0.0.1:8000/api/Majors/")
@@ -213,3 +236,5 @@ class TestMajorViewSet():
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
             pytest.fail("Exception: " + str(e))
+    
+    end()
