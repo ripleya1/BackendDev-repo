@@ -1,7 +1,16 @@
 from os import system
 import platform
+import subprocess
 
 def startServer():
+    migrateProc = subprocess.Popen(["python", "manage.py", "migrate"], shell=True)
+    migrateProc.wait()
+    # global runserverProcess 
+    runserverProcess = subprocess.Popen(["python", "manage.py" ,"runserver"], shell=True)
+    # yield(runserverProcess)
+    yield
+    runserverProcess.terminate()
+
     try:
         if(platform.system() == "Windows"):
             system("del databases/db.sqlite3")
