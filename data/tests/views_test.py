@@ -28,10 +28,13 @@ def student_credentials():
 def credentials(superuser_credentials, professor_credentials, adminassistant_credentials, student_credentials):
     return {"superuser": superuser_credentials, "professor": professor_credentials, "adminassistant": adminassistant_credentials, "student": student_credentials}
 
+# list, retrieve, create, update, partial update, delete
+
 class TestDepartments:
     @pytest.fixture(scope="class")
     def default_departments(self):
         return "{\"count\":6,\"next\":null,\"previous\":null,\"results\":[{\"id\":1,\"name\":\"Mathematics\"},{\"id\":2,\"name\":\"Biology\"},{\"id\":3,\"name\":\"Psychology\"},{\"id\":4,\"name\":\"Computer Science\"},{\"id\":5,\"name\":\"Art\"},{\"id\":6,\"name\":\"Business\"}]}"
+    
     def testListAsStudent(self, credentials, default_departments):
         try:
             req = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["student"][0], credentials["student"][1]))
@@ -40,6 +43,58 @@ class TestDepartments:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
             pytest.fail("Exception: " + str(e))
+    def testListAsProfessor(self, credentials, default_departments):
+        try:
+            req = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["professor"][0], credentials["professor"][1]))
+            assert req.text == default_departments
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            pytest.fail("Exception: " + str(e))
+    def testListAsAdminassistant(self, credentials, default_departments):
+        try:
+            req = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
+            assert req.text == default_departments
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            pytest.fail("Exception: " + str(e))
+
+    def testRetrieveAsStudent(self, credentials):
+        try:
+            req = requests.get("http://127.0.0.1:8000/api/Departments/1/", auth=(credentials["student"][0], credentials["student"][1]))
+            assert req.text == "{\"id\":1,\"name\":\"Mathematics\"}"
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            pytest.fail("Exception: " + str(e))
+    def testRetrieveAsProfessor(self, credentials):
+        try:
+            req = requests.get("http://127.0.0.1:8000/api/Departments/1/", auth=(credentials["professor"][0], credentials["professor"][1]))
+            assert req.text == "{\"id\":1,\"name\":\"Mathematics\"}"
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            pytest.fail("Exception: " + str(e))
+    def testRetrieveAsAdminassistant(self, credentials):
+        try:
+            req = requests.get("http://127.0.0.1:8000/api/Departments/1/", auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
+            assert req.text == "{\"id\":1,\"name\":\"Mathematics\"}"
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            pytest.fail("Exception: " + str(e))
+
+    def testCreateAsStudent(self, credentials):
+        try:
+            req = requests.post("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["student"][0], credentials["student"][1]))
+            assert req.status_code == 403
+        except Exception as e:
+            if req.status_code != requests.codes.ok and not req.status_code == 403:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+
 
 #TODO: FIX DEFAULT FIXTURES (SHOULD INCLUDE FULL RESPONSE NOT JUST RESULTS FIELD)
 # class TestMajor:
