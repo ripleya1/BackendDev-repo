@@ -17,9 +17,6 @@ from data.models import (
     Profile
 )
 
-import subprocess
-# from os import environ
-
 #start: (with no databases and no migrations)
 #-python manage.py makemigrations data
 #-python manage.py migrate
@@ -29,24 +26,9 @@ GROUPS = ['Students', 'Professors', 'AdminAssistants']
 
 class Command(BaseCommand):
     help = 'Initialize databases with authenticated users for access'
-
-    def add_arguments(self, parser):
-        parser.add_argument("-t", "--testing", action="store_true", help="Runs the script as it is intended to be used for automated testing.")
     
     def handle(self, *args, **kwargs):
         try:
-            if kwargs["testing"]:
-                makeMigrationsProc = subprocess.Popen(["python", "manage.py", "makemigrations", "data"], shell=True)
-                makeMigrationsProc.wait()
-                migrateProc = subprocess.Popen(["python", "manage.py", "migrate", "--database=testing"], shell=True)
-                migrateProc.wait()
-                # environ.setdefault("DJANGO_SETTINGS_MODULE", "BackendDev.testSettings")
-            else:
-                makeMigrationsProc = subprocess.Popen(["python", "manage.py", "makemigrations", "data"], shell=True)
-                makeMigrationsProc.wait()
-                migrateProc = subprocess.Popen(["python", "manage.py", "migrate"], shell=True)
-                migrateProc.wait()
-
             #create superuser
             su = User.objects.create_superuser(username="superuser", password="xu261backend_su")
 
