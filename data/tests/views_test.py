@@ -8,19 +8,19 @@ import requests
 # NOTE: stop the server and remove the database file when the test is done:
 # rm databases/testing.sqlite3
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def superuser_credentials():
     return ("superuser", "xu261backend_su")
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def professor_credentials():
     return ("mikeyg", "mikey_scotch")
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def adminassistant_credentials():
     return ("donnaw", "donna_pw")
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def student_credentials():
     return ("aaronr", "test_ar_pw")
 
@@ -30,49 +30,58 @@ def credentials(superuser_credentials, professor_credentials, adminassistant_cre
 
 class TestDepartments:
     @pytest.fixture(scope="class")
-    def default_departments():
-        return "{{\"id\":1,\"name\":\"Mathematics\"},{\"id\":2,\"name\":\"Biology\"},{\"id\":3,\"name\":\"Psychology\"},{\"id\":4,\"name\":\"Computer Science\"},{\"id\":5,\"name\":\"Art\"},{\"id\":6,\"name\":\"Business\"}}"
+    def default_departments(self):
+        return "{\"count\":6,\"next\":null,\"previous\":null,\"results\":[{\"id\":1,\"name\":\"Mathematics\"},{\"id\":2,\"name\":\"Biology\"},{\"id\":3,\"name\":\"Psychology\"},{\"id\":4,\"name\":\"Computer Science\"},{\"id\":5,\"name\":\"Art\"},{\"id\":6,\"name\":\"Business\"}]}"
+    def testListAsStudent(self, credentials, default_departments):
+        try:
+            req = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["student"][0], credentials["student"][1]))
+            assert req.text == default_departments
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            pytest.fail("Exception: " + str(e))
 
-class TestMajor:
-    @pytest.fixture(scope="class")
-    def default_major():
-        return "{{\"id\":1,\"name\":\"BS in Computer Science\",\"subject\":\"Computer Science\"},{\"id\":2,\"name\":\"BA in Computer Science\",\"subject\":\"Computer Science\"},{\"id\":3,\"name\":\"Fine Arts\",\"subject\":\"Art\"},{\"id\":4,\"name\":\"Art Education\",\"subject\":\"Art\"},{\"id\":5,\"name\":\"Finance\",\"subject\":\"Business\"},{\"id\":6,\"name\":\"Accounting\",\"subject\":\"Business\"},{\"id\":7,\"name\":\"Mathematics\",\"subject\":\"Mathematics\"},{\"id\":8,\"name\":\"Actuarial Science\",\"subject\":\"Mathematics\"}}"
+#TODO: FIX DEFAULT FIXTURES (SHOULD INCLUDE FULL RESPONSE NOT JUST RESULTS FIELD)
+# class TestMajor:
+#     @pytest.fixture(autouse=True, scope="class")
+#     def default_major():
+#         return "{{\"id\":1,\"name\":\"BS in Computer Science\",\"subject\":\"Computer Science\"},{\"id\":2,\"name\":\"BA in Computer Science\",\"subject\":\"Computer Science\"},{\"id\":3,\"name\":\"Fine Arts\",\"subject\":\"Art\"},{\"id\":4,\"name\":\"Art Education\",\"subject\":\"Art\"},{\"id\":5,\"name\":\"Finance\",\"subject\":\"Business\"},{\"id\":6,\"name\":\"Accounting\",\"subject\":\"Business\"},{\"id\":7,\"name\":\"Mathematics\",\"subject\":\"Mathematics\"},{\"id\":8,\"name\":\"Actuarial Science\",\"subject\":\"Mathematics\"}}"
 
-class TestMinor:
-    @pytest.fixture(scope="class")
-    def default_minor():
-        return "{{\"id\":1,\"name\":\"Mathematics\",\"subject\":\"Mathematics\"},{\"id\":2,\"name\":\"Statistics\",\"subject\":\"Mathematics\"},{\"id\":3,\"name\":\"Applied Mathematics\",\"subject\":\"Mathematics\"},{\"id\":4,\"name\":\"Computer Science\",\"subject\":\"Computer Science\"},{\"id\":5,\"name\":\"Cybersecurity\",\"subject\":\"Computer Science\"},{\"id\":6,\"name\":\"Finance\",\"subject\":\"Business\"}}"
+# class TestMinor:
+#     @pytest.fixture(autouse=True, scope="class")
+#     def default_minor():
+#         return "{{\"id\":1,\"name\":\"Mathematics\",\"subject\":\"Mathematics\"},{\"id\":2,\"name\":\"Statistics\",\"subject\":\"Mathematics\"},{\"id\":3,\"name\":\"Applied Mathematics\",\"subject\":\"Mathematics\"},{\"id\":4,\"name\":\"Computer Science\",\"subject\":\"Computer Science\"},{\"id\":5,\"name\":\"Cybersecurity\",\"subject\":\"Computer Science\"},{\"id\":6,\"name\":\"Finance\",\"subject\":\"Business\"}}"
 
-class TestCourses:
-    @pytest.fixture(scope="class")
-    def default_courses():
-        return "[]"
+# class TestCourses:
+#     @pytest.fixture(autouse=True, scope="class")
+#     def default_courses():
+#         return "[]"
 
-class TestHighimpactexperiences:
-    # TODO: do not check creation date field
-    @pytest.fixture(scope="class")
-    def default_highimpactexperiences():
-        return "{{\"id\":1,\"name\":\"Immersive and Service Learning Courses\",\"RTX_name\":\"Immersive Learning\",\"area\":null,\"advisor\":null,\"Freshman_desc\":\"Watch reflections of Xavier students who have participated in immersive and service learning academic experiences.Use an Advanced Search in Self Service to explore Immersive and Service Learning Attributed Courses during registration.\",\"Sophomore_desc\":\"Use an Advanced Search in Self Service to explore Immersive and Service Learning Attributed Courses during registration. ILE and SERL courses are available in the Core, as electives, and within many majors\",\"Junior_desc\":\"Use an Advanced Search in Self Service to explore Immersive and Service Learning Attributed Courses during registration. ILE and SERL courses are available in the Core, as electives, and within many majors\",\"Senior_desc\":\"Many ILE and SERL Attributed Courses are integrated into Capstone and Community Engaged Research experiences in your major. Ask your advisor, or use an Advanced Search to explore these integrated experiences.\",\"creation_date\":\"2022-12-04T17:22:51.250266Z\"}}"
+# class TestHighimpactexperiences:
+#     # TODO: do not check creation date field
+#     @pytest.fixture(autouse=True, scope="class")
+#     def default_highimpactexperiences():
+#         return "{{\"id\":1,\"name\":\"Immersive and Service Learning Courses\",\"RTX_name\":\"Immersive Learning\",\"area\":null,\"advisor\":null,\"Freshman_desc\":\"Watch reflections of Xavier students who have participated in immersive and service learning academic experiences.Use an Advanced Search in Self Service to explore Immersive and Service Learning Attributed Courses during registration.\",\"Sophomore_desc\":\"Use an Advanced Search in Self Service to explore Immersive and Service Learning Attributed Courses during registration. ILE and SERL courses are available in the Core, as electives, and within many majors\",\"Junior_desc\":\"Use an Advanced Search in Self Service to explore Immersive and Service Learning Attributed Courses during registration. ILE and SERL courses are available in the Core, as electives, and within many majors\",\"Senior_desc\":\"Many ILE and SERL Attributed Courses are integrated into Capstone and Community Engaged Research experiences in your major. Ask your advisor, or use an Advanced Search to explore these integrated experiences.\",\"creation_date\":\"2022-12-04T17:22:51.250266Z\"}}"
 
-class TestEvents:
-    @pytest.fixture(scope="class")
-    def default_events():
-        return "[]"
+# class TestEvents:
+#     @pytest.fixture(autouse=True, scope="class")
+#     def default_events():
+#         return "[]"
 
-class TestStudent:
-    @pytest.fixture(scope="class")
-    def default_student_list():
-        return "{{\"id\":1,\"prof\":{\"user\":{\"username\":\"kolleng\",\"email\":\"gruizengak@xavier.edu\",\"first_name\":\"Kollen\",\"last_name\":\"Gruizenga\"},\"prefix\":\"\",\"suffix\":\"II\",\"role\":\"ST\"},\"major\":[1,5],\"minor\":[1],\"schoolyear\":\"SR\"},{\"id\":2,\"prof\":{\"user\":{\"username\":\"aaronr\",\"email\":\"ripleya@xavier.edu\",\"first_name\":\"Aaron\",\"last_name\":\"Ripley\"},\"prefix\":\"Mr.\",\"suffix\":\"\",\"role\":\"ST\"},\"major\":[1],\"minor\":[],\"schoolyear\":\"JR\"}}"
+# class TestStudent:
+#     @pytest.fixture(autouse=True, scope="class")
+#     def default_student_list():
+#         return "{{\"id\":1,\"prof\":{\"user\":{\"username\":\"kolleng\",\"email\":\"gruizengak@xavier.edu\",\"first_name\":\"Kollen\",\"last_name\":\"Gruizenga\"},\"prefix\":\"\",\"suffix\":\"II\",\"role\":\"ST\"},\"major\":[1,5],\"minor\":[1],\"schoolyear\":\"SR\"},{\"id\":2,\"prof\":{\"user\":{\"username\":\"aaronr\",\"email\":\"ripleya@xavier.edu\",\"first_name\":\"Aaron\",\"last_name\":\"Ripley\"},\"prefix\":\"Mr.\",\"suffix\":\"\",\"role\":\"ST\"},\"major\":[1],\"minor\":[],\"schoolyear\":\"JR\"}}"
 
-class TestProfessor:
-    @pytest.fixture(scope="class")
-    def default_professor_list():
-        return "{{\"id\":1,\"prof\":{\"user\":{\"username\":\"mikeyg\",\"email\":\"goldweber@xavier.edu\",\"first_name\":\"Michael\",\"last_name\":\"Goldweber\"},\"prefix\":\"Dr.\",\"suffix\":\"\",\"role\":\"PR\"},\"department\":4,\"degree_desc\":\"PhD in Computer Science, University of Michigan 1969\"}}"
+# class TestProfessor:
+#     @pytest.fixture(autouse=True, scope="class")
+#     def default_professor_list():
+#         return "{{\"id\":1,\"prof\":{\"user\":{\"username\":\"mikeyg\",\"email\":\"goldweber@xavier.edu\",\"first_name\":\"Michael\",\"last_name\":\"Goldweber\"},\"prefix\":\"Dr.\",\"suffix\":\"\",\"role\":\"PR\"},\"department\":4,\"degree_desc\":\"PhD in Computer Science, University of Michigan 1969\"}}"
 
-class TestAdminassistant:
-    @pytest.fixture(scope="class")
-    def default_adminassistant_list():
-        return"{{\"id\":1,\"prof\":{\"user\":{\"username\":\"donnaw\",\"email\":\"wallace@xavier.edu\",\"first_name\":\"Donna\",\"last_name\":\"Wallace\"},\"prefix\":\"\",\"suffix\":\"\",\"role\":\"AA\"},\"department\":4}}"
+# class TestAdminassistant:
+#     @pytest.fixture(autouse=True, scope="class")
+#     def default_adminassistant_list():
+#         return"{{\"id\":1,\"prof\":{\"user\":{\"username\":\"donnaw\",\"email\":\"wallace@xavier.edu\",\"first_name\":\"Donna\",\"last_name\":\"Wallace\"},\"prefix\":\"\",\"suffix\":\"\",\"role\":\"AA\"},\"department\":4}}"
 
 # class TestDepartmentViewSet:
 #     def testGetOnNothing(self):
