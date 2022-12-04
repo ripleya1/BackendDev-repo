@@ -6,7 +6,6 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("-t", "--testing", action="store_true", help="Runs the script as it is intended to be used for automated testing.")
-        parser.add_argument("-s", "--runserver", action="store_true", help="Runs the server.")
     
     def handle(self, *args, **kwargs):
         if kwargs["testing"]:

@@ -1,32 +1,12 @@
 import pytest
 import requests
-import subprocess
-# from os import system
-# import platform
 
-def startServer():
-    makeMigrationsProc = subprocess.Popen(["python", "manage.py", "makemigrations", "data"], shell=True)
-    makeMigrationsProc.wait()
-    migrateProc = subprocess.Popen(["python", "manage.py", "migrate", "--database=testing"], shell=True)
-    migrateProc.wait()
-    startupScriptProc = subprocess.Popen(["python", "manage.py", "db_startup", "TESTING"])
-    runserverProcess = subprocess.Popen(["python", "manage.py" ,"runserver", "--settings=BackendDev.testSettings"], shell=True)
-    return(runserverProcess)
-
-def stopServer(runServerProcess):
-    runServerProcess.terminate()
-    # try:
-    #     if(platform.system() == "Windows"):
-    #             system("del databases/db.sqlite3")
-    #     else:
-    #             system("rm databases/db.sqlite3")
-    # except Exception as e:
-    #     print("Exception: " + e)
-
-# proc = startServer()
-# stopServer(proc)
-
-# NOTE: make sure the server is running before running tests!
+# NOTE: make sure you run the migrate-and-setup script with the testing flag in order to create the clean database:
+# python manage.py migrate-and-setup --testing
+# NOTE: make sure the server is running on the clean database:
+# python manage.py runserver --settings=BackendDev.testSettings
+# NOTE: stop the server and remove the database file when the test is done:
+# rm databases/testing.sqlite3
 class TestDepartmentViewSet:
     def testGetOnNothing(self):
         try:
