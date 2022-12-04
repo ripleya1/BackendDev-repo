@@ -17,6 +17,9 @@ from data.models import (
     Profile
 )
 
+import subprocess
+# from os import environ
+
 #start: (with no databases and no migrations)
 #-python manage.py makemigrations data
 #-python manage.py migrate
@@ -27,12 +30,23 @@ GROUPS = ['Students', 'Professors', 'AdminAssistants']
 class Command(BaseCommand):
     help = 'Initialize databases with authenticated users for access'
 
+    def add_arguments(self, parser):
+        parser.add_argument("-t", "--testing", action="store_true", help="Runs the script as it is intended to be used for automated testing.")
+    
     def handle(self, *args, **kwargs):
-        noDummyData = False
         try:
-            for arg in args:
-                if arg == "noDummy":
-                    noDummyData = True
+            if kwargs["testing"]:
+                makeMigrationsProc = subprocess.Popen(["python", "manage.py", "makemigrations", "data"], shell=True)
+                makeMigrationsProc.wait()
+                migrateProc = subprocess.Popen(["python", "manage.py", "migrate", "--database=testing"], shell=True)
+                migrateProc.wait()
+                # environ.setdefault("DJANGO_SETTINGS_MODULE", "BackendDev.testSettings")
+            else:
+                makeMigrationsProc = subprocess.Popen(["python", "manage.py", "makemigrations", "data"], shell=True)
+                makeMigrationsProc.wait()
+                migrateProc = subprocess.Popen(["python", "manage.py", "migrate"], shell=True)
+                migrateProc.wait()
+
             #create superuser
             su = User.objects.create_superuser(username="superuser", password="xu261backend_su")
 
@@ -40,9 +54,9 @@ class Command(BaseCommand):
             # https://testdriven.io/blog/django-permissions/
             # https://stackoverflow.com/questions/22250352/programmatically-create-a-django-group-with-permissions
             
-            self.stud_group, created = Group.objects.get_or_create(name="Student")
-            self.prof_group, created = Group.objects.get_or_create(name="Professor")
-            self.aa_group, created = Group.objects.get_or_create(name="AdminAssistant")
+            stud_group, created = Group.objects.get_or_create(name="Student")
+            prof_group, created = Group.objects.get_or_create(name="Professor")
+            aa_group, created = Group.objects.get_or_create(name="AdminAssistant")
 
             #post (create) -- requires add_
             #put, patch (updates) -- requires change_
@@ -59,14 +73,14 @@ class Command(BaseCommand):
             #AdminAssistants can update, destroy, retrieve, list all
             for perm in post_perm:
                 if perm.codename == "add_student":
-                    self.stud_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
-                    self.aa_group.permissions.add(perm)
+                    stud_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
                 elif perm.codename == "view_student":
-                    self.prof_group.permissions.add(perm)
-                    self.aa_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
                 else:
-                    self.aa_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
 
             #-Professor model
             content_type = ContentType.objects.get_for_model(Professor)
@@ -77,11 +91,11 @@ class Command(BaseCommand):
             #AdminAssistants can CRUD + list all
             for perm in post_perm:
                 if perm.codename == "view_professor":
-                    self.stud_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
-                    self.aa_group.permissions.add(perm)
+                    stud_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
                 else:
-                    self.aa_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
             
             #-AdminAssistant model
             content_type = ContentType.objects.get_for_model(AdminAssistant)
@@ -91,10 +105,10 @@ class Command(BaseCommand):
             #AdminAssistants can UD only themselves, can create/retrieve/list all 
             for perm in post_perm:
                 if perm.codename == "add_adminassistant":
-                    self.aa_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
                 elif perm.codename == "view_adminassistant":
-                    self.aa_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
 
             #-Department model
             content_type = ContentType.objects.get_for_model(Department)
@@ -103,9 +117,9 @@ class Command(BaseCommand):
             #superuser will create/update/delete
             for perm in post_perm:
                 if perm.codename == "view_department":
-                    self.stud_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
-                    self.aa_group.permissions.add(perm)
+                    stud_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
             
             #-Major model
             content_type = ContentType.objects.get_for_model(Major)
@@ -115,11 +129,11 @@ class Command(BaseCommand):
             #any can list/retrieve
             for perm in post_perm:
                 if perm.codename == "view_major":
-                    self.stud_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
-                    self.aa_group.permissions.add(perm)
+                    stud_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
                 else:
-                    self.aa_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
 
             #-Minor model
             content_type = ContentType.objects.get_for_model(Minor)
@@ -129,11 +143,11 @@ class Command(BaseCommand):
             #any can list/retrieve
             for perm in post_perm:
                 if perm.codename == "view_minor":
-                    self.stud_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
-                    self.aa_group.permissions.add(perm)
+                    stud_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
                 else:
-                    self.aa_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
 
             #-Course model
             content_type = ContentType.objects.get_for_model(Course)
@@ -143,12 +157,12 @@ class Command(BaseCommand):
             #any can list/retrieve
             for perm in post_perm:
                 if perm.codename == "view_course":
-                    self.stud_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
-                    self.aa_group.permissions.add(perm)
+                    stud_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
                 else:
-                    self.aa_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
 
             #-HighImpactExperience model
             content_type = ContentType.objects.get_for_model(HighImpactExperience)
@@ -158,12 +172,12 @@ class Command(BaseCommand):
             #any can list/retrieve
             for perm in post_perm:
                 if perm.codename == "view_HighImpactExperience":
-                    self.stud_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
-                    self.aa_group.permissions.add(perm)
+                    stud_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
                 else:
-                    self.aa_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
             
             #-Event model
             content_type = ContentType.objects.get_for_model(Event)
@@ -173,17 +187,13 @@ class Command(BaseCommand):
             #any can list/retrieve
             for perm in post_perm:
                 if perm.codename == "view_event":
-                    self.stud_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
-                    self.aa_group.permissions.add(perm)
+                    stud_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
                 else:
-                    self.aa_group.permissions.add(perm)
-                    self.prof_group.permissions.add(perm)
+                    aa_group.permissions.add(perm)
+                    prof_group.permissions.add(perm)
         
-        except:
-            raise CommandError('DB-initialization failed.')
-            
-    def fillSampleData(self, *args, **kwargs):
             #INITIALIZE DEPARTMENTS TABLE WITH SOME SAMPLE DATA
             d = Department.objects.create(name='Mathematics')
             Department.objects.create(name='Biology')
@@ -219,21 +229,21 @@ class Command(BaseCommand):
 
             #-create SAMPLE Professor user
             u = User.objects.create_user(username='mikeyg', last_name='Goldweber', email='goldweber@xavier.edu', first_name='Michael', password="mikey_scotch")
-            u.groups.add(self.prof_group)
+            u.groups.add(prof_group)
             p = Profile.objects.create(user=u, prefix='Dr.', role=Profile.PROFESSOR)
             dept=Department.objects.get(name="Computer Science")
             Professor.objects.create(prof=p, department=dept, degree_desc="PhD in Computer Science, University of Michigan 1969")
 
             #-create SAMPLE AdminAssistant user
             u = User.objects.create_user(username='donnaw', last_name='Wallace', email='wallace@xavier.edu', first_name='Donna', password="donna_pw")
-            u.groups.add(self.aa_group)
+            u.groups.add(aa_group)
             p = Profile.objects.create(user=u, role=Profile.ADMINASSISTANT)
             dept=Department.objects.get(name="Computer Science")
             AdminAssistant.objects.create(prof=p, department=dept)
 
             #-create Students
             u = User.objects.create_user(username='kolleng', last_name='Gruizenga', email='gruizengak@xavier.edu', first_name='Kollen', password='test_kg_pw')
-            u.groups.add(self.stud_group)
+            u.groups.add(stud_group)
             p = Profile.objects.create(user=u, suffix='II', role=Profile.STUDENT)
             s = Student.objects.create(prof=p, schoolyear=Student.SENIOR)
             majors=[Major.objects.get(name="BS in Computer Science"), Major.objects.get(name="Finance")]
@@ -245,18 +255,16 @@ class Command(BaseCommand):
             s.save()
 
             u = User.objects.create_user(username='aaronr', last_name='Ripley', email='ripleya@xavier.edu', first_name='Aaron', password='test_ar_pw')
-            u.groups.add(self.stud_group)
+            u.groups.add(stud_group)
             p = Profile.objects.create(user=u, prefix='Mr.', role=Profile.STUDENT)
             s = Student.objects.create(prof=p, schoolyear=Student.JUNIOR)
             majors=[Major.objects.get(name="BS in Computer Science")]
             for m in majors:
                 s.major.add(m)
             s.save()
-            
 
-
-
-
+        except Exception as e:
+            raise CommandError('DB-initialization failed:\n' + str(e))         
 
 # #--OLD
 # user = User.objects.create_user('test', 'test@google.com', 'testpassword')

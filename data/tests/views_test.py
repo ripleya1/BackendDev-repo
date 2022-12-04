@@ -9,6 +9,7 @@ def startServer():
     makeMigrationsProc.wait()
     migrateProc = subprocess.Popen(["python", "manage.py", "migrate", "--database=testing"], shell=True)
     migrateProc.wait()
+    startupScriptProc = subprocess.Popen(["python", "manage.py", "db_startup", "TESTING"])
     runserverProcess = subprocess.Popen(["python", "manage.py" ,"runserver", "--settings=BackendDev.testSettings"], shell=True)
     return(runserverProcess)
 
@@ -26,7 +27,6 @@ def stopServer(runServerProcess):
 # stopServer(proc)
 
 # NOTE: make sure the server is running before running tests!
-# these tests assume that there is nothing in the database beforehand and you are running them in order
 class TestDepartmentViewSet:
     def testGetOnNothing(self):
         try:
