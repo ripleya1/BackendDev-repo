@@ -5,6 +5,8 @@ import requests
 # python manage.py migrate-and-setup --testing
 # NOTE: make sure the server is running on the clean database:
 # python manage.py runserver --settings=BackendDev.testSettings
+# run tests using:
+# pytest data/tests
 # NOTE: stop the server and remove the database file when the test is done:
 # rm databases/testing.sqlite3
 
@@ -24,6 +26,7 @@ def adminassistant_credentials():
 def student_credentials():
     return ("aaronr", "test_ar_pw")
 
+# tuples are (username, password)
 @pytest.fixture(autouse=True, scope="session")
 def credentials(superuser_credentials, professor_credentials, adminassistant_credentials, student_credentials):
     return {"superuser": superuser_credentials, "professor": professor_credentials, "adminassistant": adminassistant_credentials, "student": student_credentials}
@@ -42,7 +45,8 @@ class TestDepartments:
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
-            pytest.fail("Exception: " + str(e))
+            else:
+                pytest.fail("Exception: " + str(e))
     def testListAsProfessor(self, credentials, default_departments):
         try:
             req = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["professor"][0], credentials["professor"][1]))
@@ -50,7 +54,8 @@ class TestDepartments:
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
-            pytest.fail("Exception: " + str(e))
+            else:
+                pytest.fail("Exception: " + str(e))
     def testListAsAdminassistant(self, credentials, default_departments):
         try:
             req = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
@@ -58,7 +63,17 @@ class TestDepartments:
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
-            pytest.fail("Exception: " + str(e))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testListAsSuperuser(self, credentials, default_departments):
+        try:
+            req = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
+            assert req.text == default_departments
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
 
     def testRetrieveAsStudent(self, credentials):
         try:
@@ -67,7 +82,8 @@ class TestDepartments:
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
-            pytest.fail("Exception: " + str(e))
+            else:
+                pytest.fail("Exception: " + str(e))
     def testRetrieveAsProfessor(self, credentials):
         try:
             req = requests.get("http://127.0.0.1:8000/api/Departments/1/", auth=(credentials["professor"][0], credentials["professor"][1]))
@@ -75,7 +91,8 @@ class TestDepartments:
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
-            pytest.fail("Exception: " + str(e))
+            else:
+                pytest.fail("Exception: " + str(e))
     def testRetrieveAsAdminassistant(self, credentials):
         try:
             req = requests.get("http://127.0.0.1:8000/api/Departments/1/", auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
@@ -83,14 +100,167 @@ class TestDepartments:
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
-            pytest.fail("Exception: " + str(e))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testRetrieveAsSuperuser(self, credentials):
+        try:
+            req = requests.get("http://127.0.0.1:8000/api/Departments/1/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
+            assert req.text == "{\"id\":1,\"name\":\"Mathematics\"}"
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
 
+    # TODO: DONE EXCEPT SUPERUSER
     def testCreateAsStudent(self, credentials):
         try:
             req = requests.post("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["student"][0], credentials["student"][1]))
             assert req.status_code == 403
         except Exception as e:
-            if req.status_code != requests.codes.ok and not req.status_code == 403:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testCreateAsProfessor(self, credentials):
+        try:
+            req = requests.post("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["professor"][0], credentials["professor"][1]))
+            assert req.status_code == 403
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testCreateAsAdminassistant(self, credentials):
+        try:
+            req = requests.post("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
+            assert req.status_code == 403
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testCreateAsSuperuser(self, credentials):
+        try:
+            req = requests.post("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["superuser"][0], credentials["superuser"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
+            assert getReq.text.contains("\"name\":\"Test Department 1\"") == True
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    
+    # TODO: NOT DONE
+    def testUpdateAsStudent(self, credentials):
+        try:
+            req = requests.put("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["student"][0], credentials["student"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["student"][0], credentials["student"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testUpdateAsProfessor(self, credentials):
+        try:
+            req = requests.put("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["professor"][0], credentials["professor"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["professor"][0], credentials["professor"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testUpdateAsAdminassistant(self, credentials):
+        try:
+            req = requests.put("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testUpdateAsSuperuser(self, credentials):
+        try:
+            req = requests.put("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["superuser"][0], credentials["superuser"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+
+    # TODO: NOT DONE
+    def testPartialUpdateAsStudent(self, credentials):
+        try:
+            req = requests.patch("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["student"][0], credentials["student"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["student"][0], credentials["student"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testPartialUpdateAsProfessor(self, credentials):
+        try:
+            req = requests.patch("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["professor"][0], credentials["professor"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["professor"][0], credentials["professor"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testPartialUpdateAsAdminassistant(self, credentials):
+        try:
+            req = requests.patch("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testPartialUpdateAsSuperuser(self, credentials):
+        try:
+            req = requests.patch("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["superuser"][0], credentials["superuser"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+
+    # TODO: NOT DONE
+    def testDeleteAsStudent(self, credentials):
+        try:
+            req = requests.delete("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["student"][0], credentials["student"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["student"][0], credentials["student"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testDeleteAsProfessor(self, credentials):
+        try:
+            req = requests.delete("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["professor"][0], credentials["professor"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["professor"][0], credentials["professor"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testDeleteAsAdminassistant(self, credentials):
+        try:
+            req = requests.delete("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
+                pytest.fail("Request failed with code " + str(req.status_code))
+            else:
+                pytest.fail("Exception: " + str(e))
+    def testDeleteAsSuperuser(self, credentials):
+        try:
+            req = requests.delete("http://127.0.0.1:8000/api/Departments/", data={"name":"Test Department 1"}, auth=(credentials["superuser"][0], credentials["superuser"][1]))
+            getReq = requests.get("http://127.0.0.1:8000/api/Departments/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
+        except Exception as e:
+            if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
             else:
                 pytest.fail("Exception: " + str(e))
