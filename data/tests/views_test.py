@@ -1185,7 +1185,7 @@ class TestHighimpactexperiences:
         try:
             req = requests.post("http://127.0.0.1:8000/api/HighImpactExperiences/", json=jsonData, auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
             getReq = requests.get("http://127.0.0.1:8000/api/HighImpactExperiences/3/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
-            assert getReq.text.__contains__("{\"id\":3,\"name\":\"Test HIE 2\",\"RTX_name\":\"test-hie\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
+            assert getReq.text.__contains__("{\"id\":3,\"name\":\"Test HIE 2\",\"RTX_name\":\"test-hie2\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
@@ -1205,7 +1205,7 @@ class TestHighimpactexperiences:
         try:
             req = requests.post("http://127.0.0.1:8000/api/HighImpactExperiences/", json=jsonData, auth=(credentials["superuser"][0], credentials["superuser"][1]))
             getReq = requests.get("http://127.0.0.1:8000/api/HighImpactExperiences/4/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
-            assert getReq.text.__contains__("{\"id\":4,\"name\":\"Test HIE 3\",\"RTX_name\":\"test-hie\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
+            assert getReq.text.__contains__("{\"id\":4,\"name\":\"Test HIE 3\",\"RTX_name\":\"test-hie3\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
@@ -1265,7 +1265,7 @@ class TestHighimpactexperiences:
         try:
             req = requests.put("http://127.0.0.1:8000/api/HighImpactExperiences/3/", json=jsonData, auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
             getReq = requests.get("http://127.0.0.1:8000/api/HighImpactExperiences/3/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
-            assert getReq.text.__contains__("{\"id\":3,\"name\":\"Test HIE 21\",\"RTX_name\":\"test-hie\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
+            assert getReq.text.__contains__("{\"id\":3,\"name\":\"Test HIE 21\",\"RTX_name\":\"test-hie2\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
@@ -1285,7 +1285,7 @@ class TestHighimpactexperiences:
         try:
             req = requests.put("http://127.0.0.1:8000/api/HighImpactExperiences/4/", json=jsonData, auth=(credentials["superuser"][0], credentials["superuser"][1]))
             getReq = requests.get("http://127.0.0.1:8000/api/HighImpactExperiences/4/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
-            assert getReq.text.__contains__("{\"id\":4,\"name\":\"Test HIE 31\",\"RTX_name\":\"test-hie\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
+            assert getReq.text.__contains__("{\"id\":4,\"name\":\"Test HIE 31\",\"RTX_name\":\"test-hie3\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
@@ -1315,7 +1315,7 @@ class TestHighimpactexperiences:
         try:
             req = requests.patch("http://127.0.0.1:8000/api/HighImpactExperiences/3/", data={"name":"Test HIE 311"}, auth=(credentials["adminassistant"][0], credentials["adminassistant"][1]))
             getReq = requests.get("http://127.0.0.1:8000/api/HighImpactExperiences/3/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
-            assert getReq.text.__contains__("{\"id\":3,\"name\":\"Test HIE 311\",\"RTX_name\":\"test-hie\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
+            assert getReq.text.__contains__("{\"id\":3,\"name\":\"Test HIE 311\",\"RTX_name\":\"test-hie2\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
@@ -1325,7 +1325,7 @@ class TestHighimpactexperiences:
         try:
             req = requests.patch("http://127.0.0.1:8000/api/HighImpactExperiences/4/", data={"name":"Test HIE 411"}, auth=(credentials["superuser"][0], credentials["superuser"][1]))
             getReq = requests.get("http://127.0.0.1:8000/api/HighImpactExperiences/4/", auth=(credentials["superuser"][0], credentials["superuser"][1]))
-            assert getReq.text.__contains__("{\"id\":4,\"name\":\"Test HIE 411\",\"RTX_name\":\"test-hie\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
+            assert getReq.text.__contains__("{\"id\":4,\"name\":\"Test HIE 411\",\"RTX_name\":\"test-hie3\",\"area\":4,\"advisor\":1,\"Freshman_desc\":\"desc1\",\"Sophomore_desc\":\"desc2\",\"Junior_desc\":\"desc3\",\"Senior_desc\":\"desc4\",")
         except Exception as e:
             if req.status_code != requests.codes.ok:
                 pytest.fail("Request failed with code " + str(req.status_code))
@@ -1374,6 +1374,7 @@ class TestHighimpactexperiences:
                 pytest.fail("Request failed with code " + str(req.status_code))
             else:
                 pytest.fail("Exception: " + str(e))
+
 
 # class TestEvents:
 #     @pytest.fixture(scope="class")
