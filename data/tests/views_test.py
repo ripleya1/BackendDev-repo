@@ -2242,6 +2242,7 @@ class TestProfessor:
             else:
                 pytest.fail("Exception: " + str(e))
 
+
 class TestAdminassistant:
     @pytest.fixture(scope="class")
     def default_adminassistant_list(self):
