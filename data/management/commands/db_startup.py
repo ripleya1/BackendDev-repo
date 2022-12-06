@@ -26,7 +26,7 @@ GROUPS = ['Students', 'Professors', 'AdminAssistants']
 
 class Command(BaseCommand):
     help = 'Initialize databases with authenticated users for access'
-
+    
     def handle(self, *args, **kwargs):
         try:
             #create superuser
@@ -175,8 +175,7 @@ class Command(BaseCommand):
                 else:
                     aa_group.permissions.add(perm)
                     prof_group.permissions.add(perm)
-            
-
+        
             #INITIALIZE DEPARTMENTS TABLE WITH SOME SAMPLE DATA
             d = Department.objects.create(name='Mathematics')
             Department.objects.create(name='Biology')
@@ -245,13 +244,9 @@ class Command(BaseCommand):
             for m in majors:
                 s.major.add(m)
             s.save()
-            
-        except:
-            raise CommandError('DB-initialization failed.')
 
-
-
-
+        except Exception as e:
+            raise CommandError('DB-initialization failed:\n' + str(e))         
 
 # #--OLD
 # user = User.objects.create_user('test', 'test@google.com', 'testpassword')
